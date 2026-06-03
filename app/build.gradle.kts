@@ -87,6 +87,12 @@ dependencies {
     implementation("com.squareup.retrofit2:converter-moshi:2.11.0")
 
     testImplementation("junit:junit:4.13.2")
+    testImplementation("org.robolectric:robolectric:4.12.1")
+    testImplementation("androidx.test.ext:junit:1.1.5")
+    testImplementation("androidx.compose.ui:ui-test-junit4")
+    testImplementation("androidx.test:core:1.5.0")
+    testImplementation("com.google.dagger:hilt-android-testing:2.51.1")
+    kspTest("com.google.dagger:hilt-android-compiler:2.51.1")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.8.1")
     testImplementation("io.mockk:mockk:1.13.11")
 
@@ -133,4 +139,11 @@ tasks.register<JacocoReport>("jacocoTestReport") {
     executionData.setFrom(fileTree(project.layout.buildDirectory.get()) {
         include("outputs/unit_test_code_coverage/debugUnitTest/testDebugUnitTest.exec")
     })
+}
+android {
+    testOptions {
+        unitTests {
+            isIncludeAndroidResources = true
+        }
+    }
 }

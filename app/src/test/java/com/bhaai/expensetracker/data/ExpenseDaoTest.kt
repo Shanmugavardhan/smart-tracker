@@ -3,17 +3,20 @@ package com.bhaai.expensetracker.data
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
 import com.bhaai.expensetracker.domain.Category
 import com.bhaai.expensetracker.domain.ExpenseStatus
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 
-@RunWith(AndroidJUnit4::class)
+@RunWith(RobolectricTestRunner::class)
+@Config(manifest=Config.NONE)
 class ExpenseDaoTest {
 
     private lateinit var database: ExpenseDatabase
@@ -34,7 +37,7 @@ class ExpenseDaoTest {
     }
 
     @Test
-    fun insertAndGetExpense() = runBlocking {
+    fun insertAndGetExpense() = runTest {
         val expense = ExpenseEntity(
             amount = 100.0,
             description = "Test Food",
@@ -53,7 +56,7 @@ class ExpenseDaoTest {
     }
 
     @Test
-    fun deleteExpense() = runBlocking {
+    fun deleteExpense() = runTest {
         val expense = ExpenseEntity(
             id = 1L,
             amount = 50.0,

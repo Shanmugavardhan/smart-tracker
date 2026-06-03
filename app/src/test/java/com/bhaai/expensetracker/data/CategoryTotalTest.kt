@@ -3,17 +3,20 @@ package com.bhaai.expensetracker.data
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
 import com.bhaai.expensetracker.domain.Category
 import com.bhaai.expensetracker.domain.ExpenseStatus
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 
-@RunWith(AndroidJUnit4::class)
+@RunWith(RobolectricTestRunner::class)
+@Config(manifest=Config.NONE)
 class CategoryTotalTest {
 
     private lateinit var database: ExpenseDatabase
@@ -34,7 +37,7 @@ class CategoryTotalTest {
     }
 
     @Test
-    fun getCategoryTotalsInRange() = runBlocking {
+    fun getCategoryTotalsInRange() = runTest {
         val food1 = ExpenseEntity(amount = 100.0, description = "F1", category = Category.FOOD, subcategory = null, status = ExpenseStatus.CATEGORIZED, timestamp = 1000L)
         val food2 = ExpenseEntity(amount = 200.0, description = "F2", category = Category.FOOD, subcategory = null, status = ExpenseStatus.CATEGORIZED, timestamp = 2000L)
         val travel1 = ExpenseEntity(amount = 50.0, description = "T1", category = Category.TRAVEL, subcategory = null, status = ExpenseStatus.CATEGORIZED, timestamp = 1500L)

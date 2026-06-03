@@ -108,7 +108,7 @@ fun AddEditExpenseScreen(
                     expanded = expanded,
                     onDismissRequest = { expanded = false },
                 ) {
-                    Category.values().forEach { category ->
+                    Category.entries.forEach { category ->
                         DropdownMenuItem(
                             text = { Text(category.name) },
                             onClick = {
