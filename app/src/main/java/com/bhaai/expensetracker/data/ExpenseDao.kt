@@ -27,4 +27,7 @@ interface ExpenseDao {
 
     @Query("SELECT SUM(amount) FROM expenses WHERE timestamp >= :startDate AND timestamp <= :endDate")
     fun getTotalAmountInRange(startDate: Long, endDate: Long): Flow<Double?>
+
+    @Query("SELECT category, SUM(amount) as totalAmount FROM expenses WHERE timestamp >= :startDate AND timestamp <= :endDate GROUP BY category")
+    fun getCategoryTotalsInRange(startDate: Long, endDate: Long): Flow<List<CategoryTotalEntity>>
 }

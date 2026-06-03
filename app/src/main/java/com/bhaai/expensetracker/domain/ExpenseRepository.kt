@@ -9,4 +9,5 @@ interface ExpenseRepository {
     suspend fun updateExpense(expense: Expense)
     suspend fun deleteExpense(expense: Expense)
     fun getTotalAmountInRange(startDate: Long, endDate: Long): Flow<Double>
+    fun getCategoryTotalsInRange(startDate: Long, endDate: Long): Flow<List<CategoryTotal>>
 }

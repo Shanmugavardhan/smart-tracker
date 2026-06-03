@@ -2,6 +2,7 @@ package com.bhaai.expensetracker.presentation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.bhaai.expensetracker.domain.CategoryTotal
 import com.bhaai.expensetracker.domain.Expense
 import com.bhaai.expensetracker.domain.ExpenseRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -30,11 +31,14 @@ class ExpenseListViewModel @Inject constructor(
     private val _monthlyTotal = MutableStateFlow(0.0)
     val monthlyTotal = _monthlyTotal.asStateFlow()
 
+    private val _categoryTotals = MutableStateFlow<List<CategoryTotal>>(emptyList())
+    val categoryTotals = _categoryTotals.asStateFlow()
+
     init {
-        loadMonthlyTotal()
+        loadMonthlyData()
     }
 
-    private fun loadMonthlyTotal() {
+    private fun loadMonthlyData() {
         val calendar = Calendar.getInstance()
         calendar.set(Calendar.DAY_OF_MONTH, 1)
         calendar.set(Calendar.HOUR_OF_DAY, 0)
@@ -55,6 +59,14 @@ class ExpenseListViewModel @Inject constructor(
                 .catch { emit(0.0) }
                 .collect { total ->
                     _monthlyTotal.value = total
+                }
+        }
+
+        viewModelScope.launch {
+            repository.getCategoryTotalsInRange(startDate, endDate)
+                .catch { emit(emptyList()) }
+                .collect { totals ->
+                    _categoryTotals.value = totals
                 }
         }
     }

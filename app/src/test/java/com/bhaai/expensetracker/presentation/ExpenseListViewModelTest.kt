@@ -1,6 +1,7 @@
 package com.bhaai.expensetracker.presentation
 
 import com.bhaai.expensetracker.domain.Category
+import com.bhaai.expensetracker.domain.CategoryTotal
 import com.bhaai.expensetracker.domain.Expense
 import com.bhaai.expensetracker.domain.ExpenseRepository
 import com.bhaai.expensetracker.domain.ExpenseStatus
@@ -45,7 +46,7 @@ class ExpenseListViewModelTest {
     }
 
     @Test
-    fun `initialization loads expenses and monthly total`() = runTest(testDispatcher) {
+    fun `initialization loads expenses and monthly total and category breakdown`() = runTest(testDispatcher) {
         val expense = Expense(
             id = 1L,
             amount = 100.0,
@@ -54,22 +55,32 @@ class ExpenseListViewModelTest {
             status = ExpenseStatus.CATEGORIZED
         )
 
-        every { repository.getAllExpenses() } returns flowOf(listOf(expense))
-        every { repository.getTotalAmountInRange(any(), any()) } returns flowOf(100.0)
+        val categoryTotals = listOf(CategoryTotal(Category.FOOD, 300.0), CategoryTotal(Category.TRAVEL, 50.0))
+
+        val expensesFlow = MutableStateFlow<List<Expense>>(emptyList())
+        every { repository.getAllExpenses() } returns expensesFlow
+        every { repository.getTotalAmountInRange(any(), any()) } returns flowOf(350.0)
+        every { repository.getCategoryTotalsInRange(any(), any()) } returns flowOf(categoryTotals)
 
         viewModel = ExpenseListViewModel(repository)
 
-        // We need a collector to trigger WhileSubscribed StateFlows
         val collectJob = launch {
             viewModel.expenses.collect {}
         }
 
+        expensesFlow.value = listOf(expense)
+
         val expenses = viewModel.expenses.value
         val total = viewModel.monthlyTotal.value
+        val cats = viewModel.categoryTotals.value
 
         assertEquals(1, expenses.size)
-        assertEquals(100.0, expenses[0].amount, 0.0)
-        assertEquals(100.0, total, 0.0)
+        assertEquals(350.0, total, 0.0)
+        assertEquals(2, cats.size)
+        assertEquals(Category.FOOD, cats[0].category)
+        assertEquals(300.0, cats[0].totalAmount, 0.0)
+        assertEquals(Category.TRAVEL, cats[1].category)
+        assertEquals(50.0, cats[1].totalAmount, 0.0)
 
         collectJob.cancel()
     }
@@ -78,6 +89,7 @@ class ExpenseListViewModelTest {
     fun `deleteExpense calls repository delete`() = runTest(testDispatcher) {
         every { repository.getAllExpenses() } returns flowOf(emptyList())
         every { repository.getTotalAmountInRange(any(), any()) } returns flowOf(0.0)
+        every { repository.getCategoryTotalsInRange(any(), any()) } returns flowOf(emptyList())
 
         viewModel = ExpenseListViewModel(repository)
 

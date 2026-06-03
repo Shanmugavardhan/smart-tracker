@@ -27,6 +27,7 @@ fun ExpenseListScreen(
 ) {
     val expenses by viewModel.expenses.collectAsState()
     val monthlyTotal by viewModel.monthlyTotal.collectAsState()
+    val categoryTotals by viewModel.categoryTotals.collectAsState()
 
     Scaffold(
         topBar = {
@@ -67,6 +68,22 @@ fun ExpenseListScreen(
                         style = MaterialTheme.typography.headlineLarge,
                         fontWeight = FontWeight.Bold
                     )
+
+                    if (categoryTotals.isNotEmpty()) {
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Text(text = "Category Breakdown", style = MaterialTheme.typography.titleSmall)
+                        Spacer(modifier = Modifier.height(8.dp))
+
+                        categoryTotals.forEach { total ->
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                Text(text = total.category?.name ?: "Uncategorized", style = MaterialTheme.typography.bodyMedium)
+                                Text(text = "₹" + String.format(java.util.Locale.US, "%.2f", total.totalAmount), style = MaterialTheme.typography.bodyMedium)
+                            }
+                        }
+                    }
                 }
             }
 
