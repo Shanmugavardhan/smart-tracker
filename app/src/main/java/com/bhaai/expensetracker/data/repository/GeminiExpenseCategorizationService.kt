@@ -30,7 +30,7 @@ class GeminiExpenseCategorizationService @Inject constructor(
 
         val prompt = """
             Extract the financial event details from the following user text: "$text".
-            
+
             Strictly follow these rules:
             1. Parse monetary values with notations: '15k' is 15000, '2.5k' is 2500, 'lakh/lac' is 100000, 'crore' is 10000000.
             2. Detect the transactionType:
@@ -47,7 +47,7 @@ class GeminiExpenseCategorizationService @Inject constructor(
             5. Extract the primary person name involved (if any) as 'person'.
             6. Extract other people involved in splits as 'people'.
             7. Set a confidence score between 0.0 and 1.0.
-            
+
             Examples:
             - Input: "Bought fridge worth 15k split among 4"
               Output: { "transactionType": "SHARED_EXPENSE", "description": "Fridge", "category": "SHOPPING", "totalAmount": 15000, "effectiveAmount": 3750, "originalAmount": 15000, "splitCount": 4, "confidence": 0.95 }

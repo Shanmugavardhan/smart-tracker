@@ -51,7 +51,7 @@ class LocalFallbackExpenseCategorizationService @Inject constructor() : ExpenseC
                 }
                 val total = numVal * multiplier
                 val count = splitMatcher.group(4)?.toIntOrNull() ?: 1
-                
+
                 transactionType = TransactionType.SHARED_EXPENSE
                 description = itemDesc.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.ROOT) else it.toString() }
                 totalAmount = total
@@ -145,7 +145,7 @@ class LocalFallbackExpenseCategorizationService @Inject constructor() : ExpenseC
                             if (foundAmount) {
                                 totalAmount = parsedAmount
                                 effectiveAmount = parsedAmount
-                                
+
                                 // Clean description
                                 var cleanDesc = text.trim()
                                 val removePattern = Pattern.compile("(?i)\\b(?:for|spent|of)?\\s*(?:rs\\.?|inr|₹)?\\s*[0-9]+(?:\\.[0-9]+)?\\s*(?:k|lakh|lac|crore)?\\b")

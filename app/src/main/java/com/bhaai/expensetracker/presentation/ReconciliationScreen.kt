@@ -196,9 +196,13 @@ fun ReconciliationScreen(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Column {
-                                Text(text = expense.description, fontWeight = FontWeight.Bold)
+
+                                val isShared = expense.splitCount != null && expense.splitCount > 1
+                                val title = if (isShared) "Shared Purchase: ${expense.description}" else expense.description
+                                Text(text = title, fontWeight = FontWeight.Bold)
+
                                 Text(
-                                    text = if (expense.splitCount != null) "Shared Purchase (Split by ${expense.splitCount})" else "Personal Expense",
+                                    text = if (expense.splitCount != null) "Split by ${expense.splitCount}" else "Personal Expense",
                                     style = MaterialTheme.typography.bodySmall,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
@@ -206,13 +210,16 @@ fun ReconciliationScreen(
                             Column(horizontalAlignment = Alignment.End) {
                                 val displayAmount = expense.originalAmount ?: expense.amount
                                 Text(
-                                    text = "-₹" + String.format(Locale.US, "%.2f", displayAmount),
+                                    text = "Paid ₹" + String.format(Locale.US, "%.2f", displayAmount),
                                     fontWeight = FontWeight.Bold,
                                     color = MaterialTheme.colorScheme.error
                                 )
                                 if (expense.originalAmount != null) {
+                                    val recoverable = expense.originalAmount - expense.amount
+                                    Text(text = "Recoverable ₹" + String.format(Locale.US, "%.2f", recoverable), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.secondary)
+
                                     Text(
-                                        text = "My share: ₹" + String.format(Locale.US, "%.2f", expense.amount),
+                                        text = "My Share ₹" + String.format(Locale.US, "%.2f", expense.amount),
                                         style = MaterialTheme.typography.bodySmall,
                                         color = MaterialTheme.colorScheme.primary
                                     )

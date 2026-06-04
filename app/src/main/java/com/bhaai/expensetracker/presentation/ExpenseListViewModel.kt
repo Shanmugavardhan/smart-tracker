@@ -60,7 +60,7 @@ class ExpenseListViewModel @Inject constructor(
         repository.getAllEvents()
     ) { entries, events ->
         val eventMap = events.associateBy { it.id }
-        
+
         var cashSum = 0.0
         var cashOutflow = 0.0
         var receivableSum = 0.0
@@ -68,7 +68,7 @@ class ExpenseListViewModel @Inject constructor(
         var loansOutstandingSum = 0.0
         var payableSum = 0.0
         var actualExpenseSum = 0.0
-        
+
         entries.forEach { entry ->
             val event = eventMap[entry.eventId]
             when (entry.accountType) {
@@ -97,7 +97,7 @@ class ExpenseListViewModel @Inject constructor(
                 else -> {}
             }
         }
-        
+
         FinancialPosition(
             cashOutflow = cashOutflow,
             moneyOwedToMe = receivableSum,

@@ -36,13 +36,13 @@ class AIParserIntegrationTest {
         moshi = Moshi.Builder()
             .addLast(KotlinJsonAdapterFactory())
             .build()
-        
+
         val retrofit = Retrofit.Builder()
             .baseUrl("https://generativelanguage.googleapis.com/")
             .addConverterFactory(MoshiConverterFactory.create(moshi))
             .build()
         geminiApi = retrofit.create(GeminiApi::class.java)
-        
+
         geminiService = GeminiExpenseCategorizationService(
             api = geminiApi,
             moshi = moshi,
@@ -50,7 +50,7 @@ class AIParserIntegrationTest {
         )
         localFallbackService = LocalFallbackExpenseCategorizationService()
         networkMonitor = NetworkMonitor(context)
-        
+
         service = ExpenseCategorizationServiceImpl(
             geminiService = geminiService,
             localFallbackService = localFallbackService,

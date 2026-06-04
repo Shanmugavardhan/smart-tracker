@@ -100,7 +100,7 @@ class FinancialLedgerIntegrationTests {
                 val amt = parsed.totalAmount ?: 0.0
                 entries.add(LedgerEntry("${eventId}_cash", eventId, AccountType.CASH, -amt))
                 entries.add(LedgerEntry("${eventId}_receivable", eventId, AccountType.RECEIVABLE, amt))
-                
+
                 parsed.person?.let { personName ->
                     val personId = "person_${personName.lowercase(Locale.ROOT).replace(" ", "_")}"
                     repository.insertPerson(Person(personId, personName))
@@ -111,7 +111,7 @@ class FinancialLedgerIntegrationTests {
                 val amt = parsed.totalAmount ?: 0.0
                 entries.add(LedgerEntry("${eventId}_cash", eventId, AccountType.CASH, amt))
                 entries.add(LedgerEntry("${eventId}_receivable", eventId, AccountType.RECEIVABLE, -amt))
-                
+
                 parsed.person?.let { personName ->
                     val personId = "person_${personName.lowercase(Locale.ROOT).replace(" ", "_")}"
                     repository.insertPerson(Person(personId, personName))
@@ -122,7 +122,7 @@ class FinancialLedgerIntegrationTests {
                 val amt = parsed.totalAmount ?: 0.0
                 entries.add(LedgerEntry("${eventId}_cash", eventId, AccountType.CASH, amt))
                 entries.add(LedgerEntry("${eventId}_receivable", eventId, AccountType.RECEIVABLE, -amt))
-                
+
                 val roommateId = "person_roommate_a"
                 repository.insertPerson(Person(roommateId, "Roommate A"))
                 obligations.add(Obligation("${eventId}_reimburse", roommateId, -amt, "Reimbursement received"))
@@ -185,11 +185,11 @@ class FinancialLedgerIntegrationTests {
         // --- Validate Final Position Math ---
         val entries = repository.getAllLedgerEntries().first()
         val events = repository.getAllEvents().first()
-        
+
         var cashSum = 0.0
         var receivableSum = 0.0
         var payableSum = 0.0
-        
+
         entries.forEach { entry ->
             when (entry.accountType) {
                 AccountType.CASH -> cashSum += entry.amount
@@ -202,10 +202,10 @@ class FinancialLedgerIntegrationTests {
         // Expected totals:
         // Cash sum: -(3369 + 2400 + 1804 + 1700 + 3500 - 1000 + 10000 - 451) = -21322.0
         assertEquals(-21322.0, cashSum, 0.01)
-        
+
         // Receivables sum: 2526.75 + 1800.0 + 1353.0 + 1275.0 + 3500.0 - 1000.0 + 7500.0 - 451.0 = 16503.75
         assertEquals(16503.75, receivableSum, 0.01)
-        
+
         // Net position: Cash + Receivables - Payables = -21322.0 + 16503.75 - 0.0 = -4818.25
         val netPosition = cashSum + receivableSum - payableSum
         assertEquals(-4818.25, netPosition, 0.01)

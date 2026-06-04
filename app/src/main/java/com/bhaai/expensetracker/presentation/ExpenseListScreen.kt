@@ -117,7 +117,7 @@ fun ExpenseListScreen(
                         fontWeight = FontWeight.Bold,
                         color = if (financialPosition.netPosition >= 0) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error
                     )
-                    
+
                     Spacer(modifier = Modifier.height(16.dp))
                     HorizontalDivider(modifier = Modifier.fillMaxWidth())
                     Spacer(modifier = Modifier.height(16.dp))
@@ -161,7 +161,7 @@ fun ExpenseListScreen(
                         Text(text = "Money I Owe Others", style = MaterialTheme.typography.bodyMedium)
                         Text(text = "₹" + String.format(java.util.Locale.US, "%.2f", financialPosition.moneyIOweOthers), style = MaterialTheme.typography.bodyMedium)
                     }
-                    
+
                     Spacer(modifier = Modifier.height(16.dp))
                     Button(
                         onClick = { navController.navigate(Screen.ReconciliationScreen.route) },
