@@ -14,5 +14,8 @@ data class ExpenseEntity(
     val category: Category?,
     val subcategory: String?,
     val status: ExpenseStatus,
-    val timestamp: Long
+    val confidence: Double? = null,
+    val timestamp: Long,
+    val splitCount: Int? = null,
+    val originalAmount: Double? = null
 )

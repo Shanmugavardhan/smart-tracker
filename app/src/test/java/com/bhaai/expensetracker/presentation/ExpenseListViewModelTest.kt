@@ -31,6 +31,7 @@ import kotlinx.coroutines.launch
 class ExpenseListViewModelTest {
 
     private lateinit var repository: ExpenseRepository
+    private lateinit var categorizationService: com.bhaai.expensetracker.domain.ExpenseCategorizationService
     private lateinit var viewModel: ExpenseListViewModel
     private val testDispatcher = UnconfinedTestDispatcher()
 
@@ -38,6 +39,7 @@ class ExpenseListViewModelTest {
     fun setUp() {
         Dispatchers.setMain(testDispatcher)
         repository = mockk(relaxed = true)
+        categorizationService = mockk(relaxed = true)
     }
 
     @After
@@ -62,7 +64,7 @@ class ExpenseListViewModelTest {
         every { repository.getTotalAmountInRange(any(), any()) } returns flowOf(350.0)
         every { repository.getCategoryTotalsInRange(any(), any()) } returns flowOf(categoryTotals)
 
-        viewModel = ExpenseListViewModel(repository)
+        viewModel = ExpenseListViewModel(repository, categorizationService)
 
         val collectJob = launch {
             viewModel.expenses.collect {}
@@ -91,7 +93,7 @@ class ExpenseListViewModelTest {
         every { repository.getTotalAmountInRange(any(), any()) } returns flowOf(0.0)
         every { repository.getCategoryTotalsInRange(any(), any()) } returns flowOf(emptyList())
 
-        viewModel = ExpenseListViewModel(repository)
+        viewModel = ExpenseListViewModel(repository, categorizationService)
 
         val expense = Expense(
             id = 1L,

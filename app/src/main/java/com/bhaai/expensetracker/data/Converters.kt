@@ -24,4 +24,24 @@ class Converters {
     fun toExpenseStatus(name: String): ExpenseStatus {
         return ExpenseStatus.valueOf(name)
     }
+
+    @TypeConverter
+    fun fromTransactionType(type: com.bhaai.expensetracker.domain.TransactionType): String {
+        return type.name
+    }
+
+    @TypeConverter
+    fun toTransactionType(name: String): com.bhaai.expensetracker.domain.TransactionType {
+        return com.bhaai.expensetracker.domain.TransactionType.valueOf(name)
+    }
+
+    @TypeConverter
+    fun fromAccountType(type: com.bhaai.expensetracker.domain.AccountType): String {
+        return type.name
+    }
+
+    @TypeConverter
+    fun toAccountType(name: String): com.bhaai.expensetracker.domain.AccountType {
+        return com.bhaai.expensetracker.domain.AccountType.valueOf(name)
+    }
 }

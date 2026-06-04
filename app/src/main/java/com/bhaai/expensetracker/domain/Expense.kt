@@ -7,7 +7,10 @@ data class Expense(
     val category: Category?,
     val subcategory: String? = null,
     val status: ExpenseStatus,
-    val timestamp: Long = System.currentTimeMillis()
+    val confidence: Double? = null,
+    val timestamp: Long = System.currentTimeMillis(),
+    val splitCount: Int? = null,
+    val originalAmount: Double? = null
 )
 
 enum class ExpenseStatus {

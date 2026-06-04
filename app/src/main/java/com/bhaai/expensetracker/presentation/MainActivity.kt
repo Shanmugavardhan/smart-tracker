@@ -32,12 +32,50 @@ class MainActivity : ComponentActivity() {
                         composable(route = Screen.ExpenseListScreen.route) {
                             ExpenseListScreen(navController = navController)
                         }
+                        composable(route = Screen.ReconciliationScreen.route) {
+                            ReconciliationScreen(navController = navController)
+                        }
                         composable(
                             route = Screen.AddEditExpenseScreen.route,
                             arguments = listOf(
                                 navArgument(name = "expenseId") {
                                     type = NavType.LongType
                                     defaultValue = -1L
+                                },
+                                navArgument(name = "amount") {
+                                    type = NavType.StringType
+                                    nullable = true
+                                    defaultValue = null
+                                },
+                                navArgument(name = "description") {
+                                    type = NavType.StringType
+                                    nullable = true
+                                    defaultValue = null
+                                },
+                                navArgument(name = "category") {
+                                    type = NavType.StringType
+                                    nullable = true
+                                    defaultValue = null
+                                },
+                                navArgument(name = "confidence") {
+                                    type = NavType.StringType
+                                    nullable = true
+                                    defaultValue = null
+                                },
+                                navArgument(name = "subcategory") {
+                                    type = NavType.StringType
+                                    nullable = true
+                                    defaultValue = null
+                                },
+                                navArgument(name = "splitCount") {
+                                    type = NavType.StringType
+                                    nullable = true
+                                    defaultValue = null
+                                },
+                                navArgument(name = "originalAmount") {
+                                    type = NavType.StringType
+                                    nullable = true
+                                    defaultValue = null
                                 }
                             )
                         ) {

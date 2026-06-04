@@ -119,6 +119,40 @@ fun AddEditExpenseScreen(
                     }
                 }
             }
+
+            state.confidence?.let { confidence ->
+                Spacer(modifier = Modifier.height(24.dp))
+                val percentage = (confidence * 100).toInt()
+                val color = when {
+                    confidence >= 0.8 -> MaterialTheme.colorScheme.primary
+                    confidence >= 0.5 -> MaterialTheme.colorScheme.secondary
+                    else -> MaterialTheme.colorScheme.error
+                }
+                val label = when {
+                    confidence >= 0.8 -> "High Confidence ($percentage%)"
+                    confidence >= 0.5 -> "Medium Confidence ($percentage%)"
+                    else -> "Low Confidence ($percentage%)"
+                }
+                Surface(
+                    color = color.copy(alpha = 0.1f),
+                    shape = MaterialTheme.shapes.medium,
+                    border = androidx.compose.foundation.BorderStroke(1.dp, color.copy(alpha = 0.5f))
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp, vertical = 12.dp),
+                        verticalAlignment = androidx.compose.ui.Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "✨ AI Extracted: $label",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = color,
+                            fontWeight = androidx.compose.ui.text.font.FontWeight.SemiBold
+                        )
+                    }
+                }
+            }
         }
     }
 }

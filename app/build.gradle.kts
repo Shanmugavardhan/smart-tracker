@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
@@ -15,12 +17,21 @@ android {
     namespace = "com.bhaai.expensetracker"
     compileSdk = 34
 
+    val localProperties = Properties()
+    val localPropertiesFile = project.rootProject.file("local.properties")
+    if (localPropertiesFile.exists()) {
+        localProperties.load(localPropertiesFile.inputStream())
+    }
+    val geminiApiKey = localProperties.getProperty("gemini.api.key") ?: System.getenv("GEMINI_API_KEY") ?: ""
+
     defaultConfig {
         applicationId = "com.bhaai.expensetracker"
         minSdk = 26
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
+
+        buildConfigField("String", "GEMINI_API_KEY", "\"$geminiApiKey\"")
 
         testInstrumentationRunner = "com.bhaai.expensetracker.HiltTestRunner"
         vectorDrawables {
@@ -69,12 +80,15 @@ dependencies {
     implementation("androidx.compose.ui:ui-graphics")
     implementation("androidx.compose.ui:ui-tooling-preview")
     implementation("androidx.compose.material3:material3")
+    implementation("androidx.compose.material:material-icons-extended")
     implementation("androidx.navigation:navigation-compose:2.7.7")
 
     val roomVersion = "2.6.1"
     implementation("androidx.room:room-runtime:2.6.1")
     implementation("androidx.room:room-ktx:2.6.1")
     ksp("androidx.room:room-compiler:2.6.1")
+
+    implementation("com.squareup.moshi:moshi-kotlin:1.15.0")
 
     implementation("com.google.dagger:hilt-android:2.51.1")
     ksp("com.google.dagger:hilt-android-compiler:2.51.1")

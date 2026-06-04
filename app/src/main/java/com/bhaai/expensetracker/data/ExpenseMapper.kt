@@ -10,7 +10,10 @@ fun ExpenseEntity.toDomain(): Expense {
         category = category,
         subcategory = subcategory,
         status = status,
-        timestamp = timestamp
+        confidence = confidence,
+        timestamp = timestamp,
+        splitCount = splitCount,
+        originalAmount = originalAmount
     )
 }
 
@@ -22,6 +25,9 @@ fun Expense.toEntity(): ExpenseEntity {
         category = category,
         subcategory = subcategory,
         status = status,
-        timestamp = timestamp
+        confidence = confidence,
+        timestamp = timestamp,
+        splitCount = splitCount,
+        originalAmount = originalAmount
     )
 }
