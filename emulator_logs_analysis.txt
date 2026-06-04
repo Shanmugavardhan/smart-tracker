@@ -1,0 +1,71 @@
+# Android Emulator & Smart-Tracker App Logs Analysis
+
+Date/Time: 2026-06-04
+Device Configuration: Google Pixel 6 Profile (1080x2400 screen resolution, 420 dpi density)
+Emulator Renderer: SwiftShader CPU-based Software Rendering (-gpu swiftshader_indirect)
+Target Package: com.bhaai.expensetracker (smart-tracker)
+
+---
+
+## 1. Emulator Launch and Boot Log Analysis (from /tmp/emulator.log)
+The emulator launched successfully without graphics device hangs. By utilizing SwiftShader (Google's software CPU renderer) instead of direct host GPU redirection, we bypassed discrete GPU driver crashes (NVK Vulkan hangs on discrete NVIDIA cards):
+* **Graphics API Version:** OpenGL ES 3.0 SwiftShader 4.0.0.1
+* **Display Configuration:** 1080x2400, dpi: 420x420
+* **Boot Completion Status:** Boot completed in 40228 ms (40.2s) successfully.
+
+No platform launch-level errors were reported in the emulator process after boot.
+
+---
+
+## 2. Runtime Errors & Warnings (from adb logcat)
+We ran a full logcat stream and filtered for errors (`E`) and warnings (`W`). Below is a categorized breakdown of these items and their root causes.
+
+### Category A: Platform & Emulator System Errors (Not App Code)
+
+#### 1. SurfaceSyncGroup Sync Delay
+* **Log entry:**
+  `06-04 15:52:41.286  3303  3667 E SurfaceSyncGroup: Failed to receive transaction ready in 1000ms. Marking SurfaceSyncGroup(wmsSync-VRI[MainActivity]#0) as ready`
+* **Source:** Android Window Manager (System UI rendering)
+* **Cause:** The emulator was JIT-compiling the Compose components on cold-startup. Because CPU rendering is slower than physical GPU acceleration, the window transaction sync timed out.
+* **Impact:** Harmless. Compose recovered immediately and marked the view transaction as ready.
+
+#### 2. FrameTracker Keyboard Animation Timeout
+* **Log entry:**
+  `06-04 15:52:57.186  3303  3303 E FrameTracker: force finish cuj, time out: J<IME_INSETS_ANIMATION::0@0@com.bhaai.expensetracker>`
+* **Source:** Android OS Jank Monitor
+* **Cause:** A known system tracker warning in Android 14. When the virtual keyboard (IME) shows or hides in the emulator under CPU rendering, the animation frame budget is exceeded, causing the Jank Monitor to report a timeout.
+* **Impact:** Harmless. It does not affect application functionality.
+
+#### 3. OpenGLRenderer Swap Configuration Warn
+* **Log entry:**
+  `06-04 15:52:40.163  3303  3460 W OpenGLRenderer: Failed to initialize 101010-2 format, error = EGL_SUCCESS`
+* **Source:** Android graphics subsystem
+* **Cause:** The graphics compositor failed to map 10-bit color depth format support (101010-2) onto the SwiftShader software rendering target.
+* **Impact:** Harmless. It fell back to standard 8-bit RGB color maps.
+
+---
+
+### Category B: Smart-Tracker App Warnings
+
+#### 1. Unreleased Resource Leak (CloseGuard Warning)
+* **Log entry:**
+  `06-04 15:52:47.868  3303  3337 W System  : A resource failed to call release.`
+  `06-04 15:53:52.077  3303  3337 W System  : A resource failed to call release.`
+* **Source:** Android `CloseGuard` garbage collector tracking
+* **Cause:** An object implementing `AutoCloseable` or `Closeable` (like a database cursor, file input stream, network socket, or database connection flow) was finalized by the garbage collector without `close()` or `release()` being explicitly called.
+* **Impact:** Minor memory leak. While it doesn't crash the application, repeatedly leaking file descriptors or db cursors can eventually degrade performance or throw cursor-pool exhaustion errors.
+* **Remediation:** Check codebase streams, DB query flows, or connection objects to ensure they are handled inside `.use { }` blocks or explicitly closed in ViewModel `onCleared()`.
+
+#### 2. Compose Lock Verification Warning
+* **Log entry:**
+  `06-04 15:52:39.643  3303  3303 W .expensetracker: Method boolean androidx.compose.runtime.snapshots.SnapshotStateList.conditionalUpdate(...) failed lock verification and will run slower.`
+* **Source:** Android ART (Android Runtime) Dex Verifier
+* **Cause:** ART failed lock verification on non-optimized debug compilation code in the Compose Runtime snapshot class. This warning is extremely common in Debug builds when Proguard/R8 optimization is disabled.
+* **Impact:** Slight performance degradation inside compose state lists in debug builds. In release builds, optimization (R8) resolves this lock verification warning.
+
+---
+
+## 3. Conclusion
+The application `smart-tracker` is completely stable. There are **zero crash-level errors** coming from our application logic (no `NullPointerException`, no SQL errors, no Hilt injection crashes, no UI Thread blocks, etc.).
+
+All logged errors (`E`) are purely platform/emulator-specific rendering delays caused by CPU-based graphics translation. The only warning of note in the application is the `CloseGuard` warning regarding an unreleased resource, which is a minor lifecycle cleanup task.

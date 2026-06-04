@@ -32,20 +32,46 @@ class AddEditExpenseViewModel @Inject constructor(
     private var currentExpense: Expense? = null
 
     init {
-        expenseId?.let { id ->
-            if (id != -1L) {
-                viewModelScope.launch {
-                    repository.getExpenseById(id)?.let { expense ->
-                        currentExpense = expense
-                        _state.value = AddEditExpenseState(
-                            amount = expense.amount.toString(),
-                            description = expense.description,
-                            category = expense.category,
-                            isEditing = true
-                        )
-                    }
+        val id = expenseId ?: -1L
+        if (id != -1L) {
+            viewModelScope.launch {
+                repository.getExpenseById(id)?.let { expense ->
+                    currentExpense = expense
+                    _state.value = AddEditExpenseState(
+                        amount = expense.amount.toString(),
+                        description = expense.description,
+                        category = expense.category,
+                        confidence = expense.confidence,
+                        isEditing = true,
+                        subcategory = expense.subcategory ?: "",
+                        splitCount = expense.splitCount,
+                        originalAmount = expense.originalAmount
+                    )
                 }
             }
+        } else {
+            val amountArg: String? = savedStateHandle.get<String>("amount")
+            val descriptionArg: String? = savedStateHandle.get<String>("description")
+            val categoryArg: String? = savedStateHandle.get<String>("category")
+            val confidenceArg: String? = savedStateHandle.get<String>("confidence")
+            val subcategoryArg: String? = savedStateHandle.get<String>("subcategory")
+            val splitCountArg: String? = savedStateHandle.get<String>("splitCount")
+            val originalAmountArg: String? = savedStateHandle.get<String>("originalAmount")
+
+            val parsedCategory = categoryArg?.let {
+                try { Category.valueOf(it.uppercase()) } catch (e: Exception) { null }
+            }
+
+            _state.value = AddEditExpenseState(
+                amount = amountArg ?: "",
+                description = descriptionArg ?: "",
+                category = parsedCategory,
+                confidence = confidenceArg?.toDoubleOrNull(),
+                isEditing = false,
+                subcategory = subcategoryArg ?: "",
+                splitCount = splitCountArg?.toIntOrNull(),
+                originalAmount = originalAmountArg?.toDoubleOrNull()
+            )
         }
     }
 
@@ -66,7 +92,6 @@ class AddEditExpenseViewModel @Inject constructor(
                         val amountDouble = _state.value.amount.toDoubleOrNull() ?: throw Exception("Invalid amount")
                         if (_state.value.description.isBlank()) throw Exception("Description cannot be empty")
 
-                        // Default to OTHER if no category selected initially (for V1 local version)
                         val categoryToSave = _state.value.category ?: Category.OTHER
 
                         val expense = Expense(
@@ -75,7 +100,11 @@ class AddEditExpenseViewModel @Inject constructor(
                             description = _state.value.description,
                             category = categoryToSave,
                             status = ExpenseStatus.CATEGORIZED,
-                            timestamp = currentExpense?.timestamp ?: System.currentTimeMillis()
+                            confidence = _state.value.confidence,
+                            timestamp = currentExpense?.timestamp ?: System.currentTimeMillis(),
+                            subcategory = _state.value.subcategory.ifBlank { null },
+                            splitCount = _state.value.splitCount,
+                            originalAmount = _state.value.originalAmount
                         )
 
                         if (currentExpense != null) {
@@ -102,7 +131,11 @@ data class AddEditExpenseState(
     val amount: String = "",
     val description: String = "",
     val category: Category? = null,
-    val isEditing: Boolean = false
+    val confidence: Double? = null,
+    val isEditing: Boolean = false,
+    val subcategory: String = "",
+    val splitCount: Int? = null,
+    val originalAmount: Double? = null
 )
 
 sealed class AddEditExpenseEvent {
